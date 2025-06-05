@@ -15,7 +15,7 @@ React Admin Frontend for Vallena with comprehensive CI/CD pipeline.
 
 ## 📋 Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - npm 8+
 - Docker (for containerization)
 - Access to Jenkins server (for testing)
@@ -124,6 +124,9 @@ Configure the following secrets in your GitHub repository:
 ### Deployment
 - `APP_URL` - Production application URL for health checks
 
+### Discord Notifications
+- `DISCORD_WEBHOOK_URL` - Discord webhook URL for PR notifications
+
 ### Optional
 - Additional secrets for your specific deployment target (AWS, Azure, GCP, etc.)
 
@@ -172,6 +175,39 @@ The application includes:
 - Performance monitoring with response time validation
 - Smoke tests for critical functionality
 - Automated rollback on health check failures
+
+## 🔔 Discord Notifications Setup
+
+The pipeline includes Discord webhook notifications for both successful and failed pipeline runs. To enable notifications:
+
+### 1. Create Discord Webhook
+1. Open your Discord server and go to the channel where you want notifications
+2. Click on the gear icon next to the channel name → **Integrations**
+3. Click **Create Webhook** or **View Webhooks** → **New Webhook**
+4. Give it a name (e.g., "Vallena CI/CD")
+5. Copy the webhook URL
+
+### 2. Configure GitHub Secret
+1. Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Name: `DISCORD_WEBHOOK_URL`
+4. Value: Your Discord webhook URL
+5. Click **Add secret**
+
+### 3. Enable Notifications
+In the workflow file (`.github/workflows/ci-cd.yml`), uncomment the Discord notification sections in the `notify` job:
+
+- Remove the `#` at the beginning of each line in the notification blocks
+- The notifications will automatically differentiate between PR events and push events
+- Success notifications include pipeline duration and commit details
+- Failure notifications include which specific jobs failed
+
+### Notification Features
+- **Rich embeds** with color coding (green for success, red for failure)
+- **Event type detection** (PR vs Push)
+- **Failed job listing** for quick identification of issues
+- **Direct links** to commits, PRs, and workflow runs
+- **Author information** and timestamps
 
 ## 🤝 Contributing
 

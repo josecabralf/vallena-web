@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  NODE_VERSION: '22'
+  NODE_VERSION: '20'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   JENKINS_URL: ${{ secrets.JENKINS_URL }}
@@ -400,10 +400,202 @@ jobs:
         if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
         run: |
           echo "🎉 Pipeline completed successfully!"
-          # Add notification logic (Slack, email, etc.)
+          
+          # Discord webhook notification for success
+          # Uncomment and configure the following section:
+          # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
+          # 
+          # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+          #   # Get commit info
+          #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
+          #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
+          #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          #   
+          #   # Determine if this is a PR or push
+          #   if [ "${{ github.event_name }}" = "pull_request" ]; then
+          #     PR_NUMBER="${{ github.event.pull_request.number }}"
+          #     PR_TITLE="${{ github.event.pull_request.title }}"
+          #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+          #     EVENT_TYPE="Pull Request #$PR_NUMBER"
+          #     EVENT_TITLE="$PR_TITLE"
+          #     EVENT_URL="$PR_URL"
+          #   else
+          #     EVENT_TYPE="Push to ${{ github.ref_name }}"
+          #     EVENT_TITLE="$COMMIT_MSG"
+          #     EVENT_URL="$COMMIT_URL"
+          #   fi
+          #   
+          #   # Create Discord embed payload
+          #   DISCORD_PAYLOAD=$(cat <<EOF
+          # {
+          #   "username": "Vallena CI/CD",
+          #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+          #   "embeds": [
+          #     {
+          #       "title": "✅ Pipeline Success",
+          #       "description": "All stages completed successfully!",
+          #       "color": 65280,
+          #       "fields": [
+          #         {
+          #           "name": "Repository",
+          #           "value": "${{ github.repository }}",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Event",
+          #           "value": "$EVENT_TYPE",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Branch",
+          #           "value": "${{ github.ref_name }}",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Commit",
+          #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Author",
+          #           "value": "$COMMIT_AUTHOR",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Workflow",
+          #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+          #           "inline": true
+          #         }
+          #       ],
+          #       "footer": {
+          #         "text": "Vallena Web",
+          #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          #       },
+          #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          #     }
+          #   ]
+          # }
+          # EOF
+          #   )
+          #   
+          #   # Send notification to Discord
+          #   curl -H "Content-Type: application/json" \
+          #        -d "$DISCORD_PAYLOAD" \
+          #        "$DISCORD_WEBHOOK_URL"
+          #   
+          #   echo "Discord notification sent successfully"
+          # else
+          #   echo "Discord webhook URL not configured"
+          # fi
 
       - name: Notify Failure
         if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
         run: |
           echo "❌ Pipeline failed!"
-          # Add notification logic (Slack, email, etc.)
+          
+          # Discord webhook notification for failure
+          # Uncomment and configure the following section:
+          # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
+          # 
+          # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+          #   # Get commit info
+          #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
+          #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
+          #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          #   
+          #   # Determine if this is a PR or push
+          #   if [ "${{ github.event_name }}" = "pull_request" ]; then
+          #     PR_NUMBER="${{ github.event.pull_request.number }}"
+          #     PR_TITLE="${{ github.event.pull_request.title }}"
+          #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+          #     EVENT_TYPE="Pull Request #$PR_NUMBER"
+          #     EVENT_TITLE="$PR_TITLE"
+          #     EVENT_URL="$PR_URL"
+          #   else
+          #     EVENT_TYPE="Push to ${{ github.ref_name }}"
+          #     EVENT_TITLE="$COMMIT_MSG"
+          #     EVENT_URL="$COMMIT_URL"
+          #   fi
+          #   
+          #   # Determine which jobs failed
+          #   FAILED_JOBS=""
+          #   if [ "${{ needs.sast-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• SAST Scan\n"; fi
+          #   if [ "${{ needs.code-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Code Linting\n"; fi
+          #   if [ "${{ needs.docker-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Docker Linting\n"; fi
+          #   if [ "${{ needs.build.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Build\n"; fi
+          #   if [ "${{ needs.image-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Image Scan\n"; fi
+          #   if [ "${{ needs.unit-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Unit Tests\n"; fi
+          #   if [ "${{ needs.integration-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Integration Tests\n"; fi
+          #   if [ "${{ needs.deploy.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Deploy\n"; fi
+          #   if [ "${{ needs.healthcheck.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Health Check\n"; fi
+          #   
+          #   # Remove trailing newline if any
+          #   FAILED_JOBS=$(echo -e "$FAILED_JOBS" | sed '/^$/d')
+          #   
+          #   # Create Discord embed payload for failure
+          #   DISCORD_PAYLOAD=$(cat <<EOF
+          # {
+          #   "username": "Vallena CI/CD",
+          #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+          #   "embeds": [
+          #     {
+          #       "title": "❌ Pipeline Failed",
+          #       "description": "One or more stages failed during execution",
+          #       "color": 16711680,
+          #       "fields": [
+          #         {
+          #           "name": "Repository",
+          #           "value": "${{ github.repository }}",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Event",
+          #           "value": "$EVENT_TYPE",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Branch",
+          #           "value": "${{ github.ref_name }}",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Commit",
+          #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Author",
+          #           "value": "$COMMIT_AUTHOR",
+          #           "inline": true
+          #         },
+          #         {
+          #           "name": "Failed Jobs",
+          #           "value": "$FAILED_JOBS",
+          #           "inline": false
+          #         },
+          #         {
+          #           "name": "Workflow",
+          #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+          #           "inline": false
+          #         }
+          #       ],
+          #       "footer": {
+          #         "text": "Vallena Web",
+          #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+          #       },
+          #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          #     }
+          #   ]
+          # }
+          # EOF
+          #   )
+          #   
+          #   # Send notification to Discord
+          #   curl -H "Content-Type: application/json" \
+          #        -d "$DISCORD_PAYLOAD" \
+          #        "$DISCORD_WEBHOOK_URL"
+          #   
+          #   echo "Discord notification sent successfully"
+          # else
+          #   echo "Discord webhook URL not configured"
+          # fi
