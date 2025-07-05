@@ -1,4 +1,3 @@
-import React from "react";
 import { Row, Col, Table, type TableProps } from "antd";
 import { Button } from ".";
 
