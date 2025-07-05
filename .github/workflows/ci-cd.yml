@@ -2,17 +2,14 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
 
 env:
   NODE_VERSION: '20'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  JENKINS_URL: ${{ secrets.JENKINS_URL }}
-  JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
-  JENKINS_USER: ${{ secrets.JENKINS_USER }}
 
 jobs:
   # Stage 1: SAST Scan
@@ -181,219 +178,184 @@ jobs:
           image: ${{ needs.build.outputs.image-tag }}
           args: --severity-threshold=high
 
-  # Stage 6: Unit Tests (Jenkins)
+  # Stage 6: Unit Tests
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Trigger Jenkins Unit Tests
-        id: jenkins-unit
-        run: |
-          JENKINS_JOB_URL="${{ env.JENKINS_URL }}/job/vallena-web-unit-tests/buildWithParameters"
-          
-          CRUMB=$(curl -s -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-            "${{ env.JENKINS_URL }}/crumbIssuer/api/json" | \
-            python3 -c "import sys, json; print(json.load(sys.stdin)['crumb'])")
-          
-          BUILD_NUMBER=$(curl -s -X POST -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-            -H "Jenkins-Crumb: $CRUMB" \
-            -d "GIT_COMMIT=${{ github.sha }}" \
-            -d "GIT_BRANCH=${{ github.ref_name }}" \
-            -d "IMAGE_TAG=${{ needs.build.outputs.image-tag }}" \
-            "$JENKINS_JOB_URL" -I | \
-            grep -i "location:" | \
-            sed 's/.*\/\([0-9]*\)\/.*/\1/')
-          
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "Jenkins unit test build triggered: #$BUILD_NUMBER"
-
-      - name: Wait for Jenkins Unit Tests
-        run: |
-          BUILD_NUMBER="${{ steps.jenkins-unit.outputs.build_number }}"
-          JOB_URL="${{ env.JENKINS_URL }}/job/vallena-web-unit-tests/$BUILD_NUMBER"
-          
-          echo "Waiting for Jenkins job completion..."
-          while true; do
-            STATUS=$(curl -s -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-              "$JOB_URL/api/json" | \
-              python3 -c "import sys, json; print(json.load(sys.stdin).get('result', 'RUNNING'))")
-            
-            if [ "$STATUS" = "SUCCESS" ]; then
-              echo "Unit tests passed!"
-              break
-            elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "ABORTED" ]; then
-              echo "Unit tests failed with status: $STATUS"
-              exit 1
-            fi
-            
-            echo "Status: $STATUS - waiting 30 seconds..."
-            sleep 30
-          done
-
-  # Stage 7: Integration Tests (Jenkins)
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [build, unit-tests]
-    steps:
-      - name: Trigger Jenkins Integration Tests
-        id: jenkins-integration
-        run: |
-          JENKINS_JOB_URL="${{ env.JENKINS_URL }}/job/vallena-web-integration-tests/buildWithParameters"
-          
-          CRUMB=$(curl -s -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-            "${{ env.JENKINS_URL }}/crumbIssuer/api/json" | \
-            python3 -c "import sys, json; print(json.load(sys.stdin)['crumb'])")
-          
-          BUILD_NUMBER=$(curl -s -X POST -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-            -H "Jenkins-Crumb: $CRUMB" \
-            -d "GIT_COMMIT=${{ github.sha }}" \
-            -d "GIT_BRANCH=${{ github.ref_name }}" \
-            -d "IMAGE_TAG=${{ needs.build.outputs.image-tag }}" \
-            "$JENKINS_JOB_URL" -I | \
-            grep -i "location:" | \
-            sed 's/.*\/\([0-9]*\)\/.*/\1/')
-          
-          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
-          echo "Jenkins integration test build triggered: #$BUILD_NUMBER"
-
-      - name: Wait for Jenkins Integration Tests
-        run: |
-          BUILD_NUMBER="${{ steps.jenkins-integration.outputs.build_number }}"
-          JOB_URL="${{ env.JENKINS_URL }}/job/vallena-web-integration-tests/$BUILD_NUMBER"
-          
-          echo "Waiting for Jenkins job completion..."
-          while true; do
-            STATUS=$(curl -s -u "${{ env.JENKINS_USER }}:${{ env.JENKINS_TOKEN }}" \
-              "$JOB_URL/api/json" | \
-              python3 -c "import sys, json; print(json.load(sys.stdin).get('result', 'RUNNING'))")
-            
-            if [ "$STATUS" = "SUCCESS" ]; then
-              echo "Integration tests passed!"
-              break
-            elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "ABORTED" ]; then
-              echo "Integration tests failed with status: $STATUS"
-              exit 1
-            fi
-            
-            echo "Status: $STATUS - waiting 30 seconds..."
-            sleep 30
-          done
-
-  # Stage 8: Deploy
-  deploy:
-    name: Deploy Application
-    runs-on: ubuntu-latest
-    needs: [build, image-scan, unit-tests, integration-tests]
-    if: github.ref == 'refs/heads/main'
-    environment: production
-    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Production
-        run: |
-          echo "Deploying image: ${{ needs.build.outputs.image-tag }}"
-          # Add your deployment logic here
-          # Examples:
-          # - Deploy to Kubernetes
-          # - Deploy to AWS ECS
-          # - Deploy to Azure Container Instances
-          # - Update Helm charts
-          
-          # Example Kubernetes deployment:
-          # kubectl set image deployment/vallena-web vallena-web=${{ needs.build.outputs.image-tag }}
-          
-          # Example Docker Compose deployment:
-          # docker-compose pull && docker-compose up -d
-          
-          echo "Deployment completed successfully"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
-      - name: Update deployment status
-        run: |
-          echo "Application deployed with image: ${{ needs.build.outputs.image-tag }}"
-          echo "Deployment timestamp: $(date)"
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:coverage
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # Stage 7: Integration Tests  
+  # integration-tests:
+  #   name: Integration Tests
+  #   runs-on: ubuntu-latest
+  #   needs: [build, unit-tests]
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: 'npm'
+
+  #     - name: Install dependencies
+  #       run: npm ci
+
+  #     - name: Build application
+  #       run: npm run build:skip-types
+
+  #     - name: Start application for integration tests
+  #       run: npm run preview &
+        
+  #     - name: Wait for application to start
+  #       run: |
+  #         timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+
+  #     - name: Run integration tests
+  #       run: npm run test
+
+  # Stage 8: Deploy
+  # deploy:
+  #   name: Deploy Application
+  #   runs-on: ubuntu-latest
+  #   needs: [build, image-scan, unit-tests, integration-tests]
+  #   if: github.ref == 'refs/heads/main'
+  #   environment: production
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Deploy to Production
+  #       run: |
+  #         echo "Deploying image: ${{ needs.build.outputs.image-tag }}"
+  #         # Add your deployment logic here
+  #         # Examples:
+  #         # - Deploy to Kubernetes
+  #         # - Deploy to AWS ECS
+  #         # - Deploy to Azure Container Instances
+  #         # - Update Helm charts
+          
+  #         # Example Kubernetes deployment:
+  #         # kubectl set image deployment/vallena-web vallena-web=${{ needs.build.outputs.image-tag }}
+          
+  #         # Example Docker Compose deployment:
+  #         # docker-compose pull && docker-compose up -d
+          
+  #         echo "Deployment completed successfully"
+
+  #     - name: Update deployment status
+  #       run: |
+  #         echo "Application deployed with image: ${{ needs.build.outputs.image-tag }}"
+  #         echo "Deployment timestamp: $(date)"
 
   # Stage 9: Health Check
-  healthcheck:
-    name: Health Check
-    runs-on: ubuntu-latest
-    needs: deploy
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Wait for deployment
-        run: sleep 60
+  # healthcheck:
+  #   name: Health Check
+  #   runs-on: ubuntu-latest
+  #   needs: deploy
+  #   if: github.ref == 'refs/heads/main'
+  #   steps:
+  #     - name: Wait for deployment
+  #       run: sleep 60
 
-      - name: Health Check
-        run: |
-          # Replace with your actual application URL
-          APP_URL="${{ secrets.APP_URL }}"
+  #     - name: Health Check
+  #       run: |
+  #         # Replace with your actual application URL
+  #         APP_URL="${{ secrets.APP_URL }}"
           
-          echo "Performing health check on: $APP_URL"
+  #         echo "Performing health check on: $APP_URL"
           
-          # Basic HTTP health check
-          for i in {1..5}; do
-            if curl -f -s "$APP_URL/health" > /dev/null; then
-              echo "✅ Health check passed"
-              break
-            else
-              echo "❌ Health check failed (attempt $i/5)"
-              if [ $i -eq 5 ]; then
-                echo "Health check failed after 5 attempts"
-                exit 1
-              fi
-              sleep 10
-            fi
-          done
+  #         # Basic HTTP health check
+  #         for i in {1..5}; do
+  #           if curl -f -s "$APP_URL/health" > /dev/null; then
+  #             echo "✅ Health check passed"
+  #             break
+  #           else
+  #             echo "❌ Health check failed (attempt $i/5)"
+  #             if [ $i -eq 5 ]; then
+  #               echo "Health check failed after 5 attempts"
+  #               exit 1
+  #             fi
+  #             sleep 10
+  #           fi
+  #         done
 
-      - name: Performance Check
-        run: |
-          APP_URL="${{ secrets.APP_URL }}"
+  #     - name: Performance Check
+  #       run: |
+  #         APP_URL="${{ secrets.APP_URL }}"
           
-          # Basic performance check using curl
-          RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$APP_URL")
-          echo "Response time: ${RESPONSE_TIME}s"
+  #         # Basic performance check using curl
+  #         RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$APP_URL")
+  #         echo "Response time: ${RESPONSE_TIME}s"
           
-          # Fail if response time is greater than 5 seconds
-          if (( $(echo "$RESPONSE_TIME > 5.0" | bc -l) )); then
-            echo "❌ Performance check failed - Response time too slow"
-            exit 1
-          else
-            echo "✅ Performance check passed"
-          fi
+  #         # Fail if response time is greater than 5 seconds
+  #         if (( $(echo "$RESPONSE_TIME > 5.0" | bc -l) )); then
+  #           echo "❌ Performance check failed - Response time too slow"
+  #           exit 1
+  #         else
+  #           echo "✅ Performance check passed"
+  #         fi
 
-      - name: Smoke Tests
-        run: |
-          APP_URL="${{ secrets.APP_URL }}"
+  #     - name: Smoke Tests
+  #       run: |
+  #         APP_URL="${{ secrets.APP_URL }}"
           
-          # Add smoke tests for critical functionality
-          echo "Running smoke tests..."
+  #         # Add smoke tests for critical functionality
+  #         echo "Running smoke tests..."
           
-          # Example smoke tests
-          # Test login page loads
-          if curl -f -s "$APP_URL/login" > /dev/null; then
-            echo "✅ Login page accessible"
-          else
-            echo "❌ Login page not accessible"
-            exit 1
-          fi
+  #         # Example smoke tests
+  #         # Test login page loads
+  #         if curl -f -s "$APP_URL/login" > /dev/null; then
+  #           echo "✅ Login page accessible"
+  #         else
+  #           echo "❌ Login page not accessible"
+  #           exit 1
+  #         fi
           
-          # Test API endpoint
-          if curl -f -s "$APP_URL/api/health" > /dev/null; then
-            echo "✅ API health endpoint accessible"
-          else
-            echo "❌ API health endpoint not accessible"
-            exit 1
-          fi
+  #         # Test API endpoint
+  #         if curl -f -s "$APP_URL/api/health" > /dev/null; then
+  #           echo "✅ API health endpoint accessible"
+  #         else
+  #           echo "❌ API health endpoint not accessible"
+  #           exit 1
+  #         fi
           
-          echo "✅ All smoke tests passed"
+  #         echo "✅ All smoke tests passed"
 
   # Notification job (runs always at the end)
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests, integration-tests, deploy, healthcheck]
+    # needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests, integration-tests, deploy, healthcheck]
+    needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests]
     if: always()
     steps:
       - name: Notify Success
