@@ -61,9 +61,13 @@ export const FlexBox: React.FC<FlexBoxProps> = ({
   onFocus,
   onBlur,
 }) => {
+  const formatGap = (gap: number | string) => {
+    return typeof gap === 'number' ? `${gap}px` : gap;
+  };
+
   const gapStyle = direction.startsWith('row')
-    ? { columnGap: gap }
-    : { rowGap: gap };
+    ? { columnGap: formatGap(gap) }
+    : { rowGap: formatGap(gap) };
 
   return (
     <div

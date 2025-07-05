@@ -46,3 +46,12 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
+
+// Mock getComputedStyle for Ant Design components
+global.getComputedStyle = vi.fn().mockImplementation(() => ({
+  getPropertyValue: vi.fn(),
+  paddingLeft: '0px',
+  paddingRight: '0px',
+  borderLeftWidth: '0px',
+  borderRightWidth: '0px',
+}));

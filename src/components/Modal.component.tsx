@@ -29,7 +29,7 @@ export const Modal: React.FunctionComponent<Props> = (props: Props) => {
     <AntModal
       style={{ ...props.styles }}
       title={props.title}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onOk={props.onOk}
       onCancel={props.close}
       open={props.show}
