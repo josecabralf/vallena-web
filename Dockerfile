@@ -22,7 +22,7 @@ RUN npm run build
 FROM nginx:alpine AS production
 
 # Install Node.js for any server-side needs (optional)
-RUN apk add --no-cache nodejs npm
+RUN apk add --no-cache nodejs=20.11.1-r0 npm=10.2.4-r0
 
 # Create app directory
 WORKDIR /usr/share/nginx/html
@@ -37,25 +37,25 @@ COPY --from=builder /app/dist .
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create a simple nginx configuration for SPA
-RUN echo 'server { \
+RUN echo "server { \
     listen 80; \
     server_name localhost; \
     root /usr/share/nginx/html; \
     index index.html; \
     location / { \
-        try_files $uri $uri/ /index.html; \
+        try_files \$uri \$uri/ /index.html; \
     } \
     location /api { \
         # Proxy API calls to backend if needed \
         # proxy_pass http://backend:8080; \
-        # proxy_set_header Host $host; \
-        # proxy_set_header X-Real-IP $remote_addr; \
-        # proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; \
-        # proxy_set_header X-Forwarded-Proto $scheme; \
+        # proxy_set_header Host \$host; \
+        # proxy_set_header X-Real-IP \$remote_addr; \
+        # proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for; \
+        # proxy_set_header X-Forwarded-Proto \$scheme; \
     } \
     gzip on; \
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript; \
-}' > /etc/nginx/conf.d/default.conf
+}" > /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
