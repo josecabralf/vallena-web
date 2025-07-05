@@ -1,0 +1,72 @@
+# Dependencies
+node_modules
+npm-debug.log*
+
+# Production build
+dist
+build
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Testing
+coverage
+.nyc_output
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+
+# Docker directory (since we're building from root now)
+docker/
+
+# CI/CD
+.github
+
+# Cache directories
+.cache
+.parcel-cache
+
+# TypeScript
+*.tsbuildinfo
+
+# Docker files (don't copy into container)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Development files
+.vscode/settings.json
+.vscode/launch.json

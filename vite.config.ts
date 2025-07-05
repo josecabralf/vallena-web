@@ -41,11 +41,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    host: true,
+    port: 5173,
+    host: '0.0.0.0',
+    cors: true,
   },
   preview: {
-    port: 3000,
+    port: 5173,
     host: true,
   },
 })
