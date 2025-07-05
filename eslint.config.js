@@ -10,7 +10,7 @@ import pluginPrettier from "eslint-plugin-prettier";
 export default [
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
-    ignores: ["vite.config.ts", "dist/**", "node_modules/**"],
+    ignores: ["dist/**", "node_modules/**", "*.config.ts", "*.config.js"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

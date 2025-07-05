@@ -11,7 +11,7 @@ export class AuthService {
         method: 'POST',
         credentials: 'include',
       },
-      body: credentials,
+      body: credentials as unknown as Record<string, unknown>,
     });
   }
 

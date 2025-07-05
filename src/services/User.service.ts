@@ -14,7 +14,7 @@ export class UserService {
       options: {
         method: 'POST',
       },
-      body: user,
+      body: user as unknown as Record<string, unknown>,
     });
   }
 
@@ -24,12 +24,12 @@ export class UserService {
       options: {
         method: 'PUT',
       },
-      body: user,
+      body: user as unknown as Record<string, unknown>,
     });
   }
 
   static async getAll(): Promise<User[]> {
-    const users = await FetchService.request({
+    const users = await FetchService.request<User[]>({
       endpoint: `${SERVICE_EP}`,
       options: {
         method: 'GET',
@@ -39,7 +39,7 @@ export class UserService {
   }
 
   static async getOne(id: string): Promise<User> {
-    const user = await FetchService.request({
+    const user = await FetchService.request<User>({
       endpoint: `${SERVICE_EP}/${id}`,
       options: {
         method: 'GET',
@@ -64,7 +64,7 @@ export class UserService {
       options: {
         method: 'PUT',
       },
-      body: passwordBody,
+      body: passwordBody as unknown as Record<string, unknown>,
     });
   }
 

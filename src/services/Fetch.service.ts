@@ -1,7 +1,7 @@
 export class FetchService {
   static API_BASE_URL = import.meta.env.VITE_API_URL;
 
-  static async request({
+  static async request<T = unknown>({
     endpoint,
     options = {},
     queryParams,
@@ -11,7 +11,7 @@ export class FetchService {
     options: RequestInit;
     queryParams?: Record<string, unknown>;
     body?: Record<string, unknown> | FormData | string;
-  }) {
+  }): Promise<T> {
     let url = `${this.API_BASE_URL}${endpoint}`;
 
     if (queryParams) {
@@ -43,14 +43,14 @@ export class FetchService {
         window.location.pathname !== '/'
       ) {
         window.location.href = '/';
-        return;
+        return undefined as T;
       }
 
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData?.message || 'Unknown error');
     }
 
-    return await this.handleResponse(response);
+    return await this.handleResponse<T>(response);
   }
 
   /**
@@ -58,20 +58,22 @@ export class FetchService {
    * @param response - La respuesta de la solicitud fetch.
    * @returns El contenido de la respuesta en el formato adecuado (JSON, texto, Blob, etc.).
    */
-  private static async handleResponse(response: Response): Promise<unknown> {
+  private static async handleResponse<T = unknown>(
+    response: Response
+  ): Promise<T> {
     const contentType = response.headers.get('content-type');
 
     if (contentType?.includes('application/json')) {
       return await response.json(); // Devolver JSON
     } else if (contentType?.includes('text/plain')) {
-      return await response.text(); // Devolver texto plano
+      return (await response.text()) as T; // Devolver texto plano
     } else if (
       contentType?.includes('application/pdf') ||
       contentType?.includes('image/')
     ) {
-      return await response.blob(); // Devolver archivos (PDF, imágenes, etc.)
+      return (await response.blob()) as T; // Devolver archivos (PDF, imágenes, etc.)
     } else {
-      return null; // Otros tipos de contenido
+      return null as T; // Otros tipos de contenido
     }
   }
 
