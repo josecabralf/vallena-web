@@ -34,6 +34,7 @@ export default [
       ...pluginReact.configs.recommended.rules,
       ...pluginReactHooks.configs.recommended.rules,
       "prettier/prettier": "error",
+      "linebreak-style": ["error", "unix"],
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react-refresh/only-export-components": [
