@@ -21,9 +21,6 @@ RUN npm run build
 # Stage 2: Production stage
 FROM nginx:alpine AS production
 
-# Install Node.js for any server-side needs (optional)
-RUN apk add --no-cache nodejs=20.11.1-r0 npm=10.2.4-r0
-
 # Create app directory
 WORKDIR /usr/share/nginx/html
 
