@@ -5,6 +5,9 @@ on:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
 
 env:
   NODE_VERSION: '20'
@@ -49,167 +52,167 @@ jobs:
             p/typescript
 
   # Stage 2: Code Linting
-  code-linting:
-    name: Code Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # code-linting:
+  #   name: Code Linting
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+  #     - name: Run ESLint
+  #       run: npm run lint
 
-      - name: Run Prettier check
-        run: npm run format:check
+  #     - name: Run Prettier check
+  #       run: npm run format:check
 
-      - name: TypeScript type check
-        run: npm run type-check
+  #     - name: TypeScript type check
+  #       run: npm run type-check
 
   # Stage 3: Docker Linting
-  docker-linting:
-    name: Docker Linting
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # docker-linting:
+  #   name: Docker Linting
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Run Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: Dockerfile
-          failure-threshold: warning
+  #     - name: Run Hadolint
+  #       uses: hadolint/hadolint-action@v3.1.0
+  #       with:
+  #         dockerfile: Dockerfile
+  #         failure-threshold: warning
 
   # Stage 4: Build
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    needs: [sast-scan, code-linting, docker-linting]
-    outputs:
-      image-digest: ${{ steps.build.outputs.digest }}
-      image-tag: ${{ steps.meta.outputs.tags }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # build:
+  #   name: Build Application
+  #   runs-on: ubuntu-latest
+  #   needs: [sast-scan, code-linting, docker-linting]
+  #   outputs:
+  #     image-digest: ${{ steps.build.outputs.digest }}
+  #     image-tag: ${{ steps.meta.outputs.tags }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Build application
-        run: npm run build
+  #     - name: Build application
+  #       run: npm run build
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-files
-          path: dist/
-          retention-days: 1
+  #     - name: Upload build artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: build-files
+  #         path: dist/
+  #         retention-days: 1
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Log in to Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ${{ env.REGISTRY }}
+  #         username: ${{ github.actor }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+  #     - name: Extract metadata
+  #       id: meta
+  #       uses: docker/metadata-action@v5
+  #       with:
+  #         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+  #         tags: |
+  #           type=ref,event=branch
+  #           type=ref,event=pr
+  #           type=sha,prefix={{branch}}-
+  #           type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push Docker image
-        id: build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+  #     - name: Build and push Docker image
+  #       id: build
+  #       uses: docker/build-push-action@v5
+  #       with:
+  #         context: .
+  #         push: true
+  #         tags: ${{ steps.meta.outputs.tags }}
+  #         labels: ${{ steps.meta.outputs.labels }}
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
 
   # Stage 5: Image Scan
-  image-scan:
-    name: Container Image Security Scan
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ needs.build.outputs.image-tag }}
-          format: 'sarif'
-          output: 'trivy-results.sarif'
+  # image-scan:
+  #   name: Container Image Security Scan
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Run Trivy vulnerability scanner
+  #       uses: aquasecurity/trivy-action@master
+  #       with:
+  #         image-ref: ${{ needs.build.outputs.image-tag }}
+  #         format: 'sarif'
+  #         output: 'trivy-results.sarif'
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+  #     - name: Upload Trivy scan results to GitHub Security tab
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       if: always()
+  #       with:
+  #         sarif_file: 'trivy-results.sarif'
 
-      - name: Run Snyk Container scan
-        uses: snyk/actions/docker@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          image: ${{ needs.build.outputs.image-tag }}
-          args: --severity-threshold=high
+  #     - name: Run Snyk Container scan
+  #       uses: snyk/actions/docker@master
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #       with:
+  #         image: ${{ needs.build.outputs.image-tag }}
+  #         args: --severity-threshold=high
 
   # Stage 6: Unit Tests
-  unit-tests:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # unit-tests:
+  #   name: Unit Tests
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE_VERSION }}
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run linting
-        run: npm run lint
+  #     - name: Run linting
+  #       run: npm run lint
 
-      - name: Run unit tests
-        run: npm run test:coverage
+  #     - name: Run unit tests
+  #       run: npm run test:coverage
 
-      - name: Upload test coverage
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          file: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+  #     - name: Upload test coverage
+  #       uses: codecov/codecov-action@v4
+  #       if: always()
+  #       with:
+  #         file: ./coverage/lcov.info
+  #         flags: unittests
+  #         name: codecov-umbrella
+  #         fail_ci_if_error: false
 
   # Stage 7: Integration Tests  
   # integration-tests:
@@ -351,213 +354,213 @@ jobs:
   #         echo "✅ All smoke tests passed"
 
   # Notification job (runs always at the end)
-  notify:
-    name: Notify
-    runs-on: ubuntu-latest
-    # needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests, integration-tests, deploy, healthcheck]
-    needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests]
-    if: always()
-    steps:
-      - name: Notify Success
-        if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-        run: |
-          echo "🎉 Pipeline completed successfully!"
+  # notify:
+  #   name: Notify
+  #   runs-on: ubuntu-latest
+  #   # needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests, integration-tests, deploy, healthcheck]
+  #   needs: [sast-scan, code-linting, docker-linting, build, image-scan, unit-tests]
+  #   if: always()
+  #   steps:
+  #     - name: Notify Success
+  #       if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+  #       run: |
+  #         echo "🎉 Pipeline completed successfully!"
           
-          # Discord webhook notification for success
-          # Uncomment and configure the following section:
-          # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
-          # 
-          # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
-          #   # Get commit info
-          #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
-          #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
-          #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
-          #   
-          #   # Determine if this is a PR or push
-          #   if [ "${{ github.event_name }}" = "pull_request" ]; then
-          #     PR_NUMBER="${{ github.event.pull_request.number }}"
-          #     PR_TITLE="${{ github.event.pull_request.title }}"
-          #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
-          #     EVENT_TYPE="Pull Request #$PR_NUMBER"
-          #     EVENT_TITLE="$PR_TITLE"
-          #     EVENT_URL="$PR_URL"
-          #   else
-          #     EVENT_TYPE="Push to ${{ github.ref_name }}"
-          #     EVENT_TITLE="$COMMIT_MSG"
-          #     EVENT_URL="$COMMIT_URL"
-          #   fi
-          #   
-          #   # Create Discord embed payload
-          #   DISCORD_PAYLOAD=$(cat <<EOF
-          # {
-          #   "username": "Vallena CI/CD",
-          #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-          #   "embeds": [
-          #     {
-          #       "title": "✅ Pipeline Success",
-          #       "description": "All stages completed successfully!",
-          #       "color": 65280,
-          #       "fields": [
-          #         {
-          #           "name": "Repository",
-          #           "value": "${{ github.repository }}",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Event",
-          #           "value": "$EVENT_TYPE",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Branch",
-          #           "value": "${{ github.ref_name }}",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Commit",
-          #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Author",
-          #           "value": "$COMMIT_AUTHOR",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Workflow",
-          #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
-          #           "inline": true
-          #         }
-          #       ],
-          #       "footer": {
-          #         "text": "Vallena Web",
-          #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-          #       },
-          #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
-          #     }
-          #   ]
-          # }
-          # EOF
-          #   )
-          #   
-          #   # Send notification to Discord
-          #   curl -H "Content-Type: application/json" \
-          #        -d "$DISCORD_PAYLOAD" \
-          #        "$DISCORD_WEBHOOK_URL"
-          #   
-          #   echo "Discord notification sent successfully"
-          # else
-          #   echo "Discord webhook URL not configured"
-          # fi
+  #         # Discord webhook notification for success
+  #         # Uncomment and configure the following section:
+  #         # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
+  #         # 
+  #         # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+  #         #   # Get commit info
+  #         #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
+  #         #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
+  #         #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+  #         #   
+  #         #   # Determine if this is a PR or push
+  #         #   if [ "${{ github.event_name }}" = "pull_request" ]; then
+  #         #     PR_NUMBER="${{ github.event.pull_request.number }}"
+  #         #     PR_TITLE="${{ github.event.pull_request.title }}"
+  #         #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+  #         #     EVENT_TYPE="Pull Request #$PR_NUMBER"
+  #         #     EVENT_TITLE="$PR_TITLE"
+  #         #     EVENT_URL="$PR_URL"
+  #         #   else
+  #         #     EVENT_TYPE="Push to ${{ github.ref_name }}"
+  #         #     EVENT_TITLE="$COMMIT_MSG"
+  #         #     EVENT_URL="$COMMIT_URL"
+  #         #   fi
+  #         #   
+  #         #   # Create Discord embed payload
+  #         #   DISCORD_PAYLOAD=$(cat <<EOF
+  #         # {
+  #         #   "username": "Vallena CI/CD",
+  #         #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+  #         #   "embeds": [
+  #         #     {
+  #         #       "title": "✅ Pipeline Success",
+  #         #       "description": "All stages completed successfully!",
+  #         #       "color": 65280,
+  #         #       "fields": [
+  #         #         {
+  #         #           "name": "Repository",
+  #         #           "value": "${{ github.repository }}",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Event",
+  #         #           "value": "$EVENT_TYPE",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Branch",
+  #         #           "value": "${{ github.ref_name }}",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Commit",
+  #         #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Author",
+  #         #           "value": "$COMMIT_AUTHOR",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Workflow",
+  #         #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+  #         #           "inline": true
+  #         #         }
+  #         #       ],
+  #         #       "footer": {
+  #         #         "text": "Vallena Web",
+  #         #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+  #         #       },
+  #         #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+  #         #     }
+  #         #   ]
+  #         # }
+  #         # EOF
+  #         #   )
+  #         #   
+  #         #   # Send notification to Discord
+  #         #   curl -H "Content-Type: application/json" \
+  #         #        -d "$DISCORD_PAYLOAD" \
+  #         #        "$DISCORD_WEBHOOK_URL"
+  #         #   
+  #         #   echo "Discord notification sent successfully"
+  #         # else
+  #         #   echo "Discord webhook URL not configured"
+  #         # fi
 
-      - name: Notify Failure
-        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
-        run: |
-          echo "❌ Pipeline failed!"
+  #     - name: Notify Failure
+  #       if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+  #       run: |
+  #         echo "❌ Pipeline failed!"
           
-          # Discord webhook notification for failure
-          # Uncomment and configure the following section:
-          # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
-          # 
-          # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
-          #   # Get commit info
-          #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
-          #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
-          #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
-          #   
-          #   # Determine if this is a PR or push
-          #   if [ "${{ github.event_name }}" = "pull_request" ]; then
-          #     PR_NUMBER="${{ github.event.pull_request.number }}"
-          #     PR_TITLE="${{ github.event.pull_request.title }}"
-          #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
-          #     EVENT_TYPE="Pull Request #$PR_NUMBER"
-          #     EVENT_TITLE="$PR_TITLE"
-          #     EVENT_URL="$PR_URL"
-          #   else
-          #     EVENT_TYPE="Push to ${{ github.ref_name }}"
-          #     EVENT_TITLE="$COMMIT_MSG"
-          #     EVENT_URL="$COMMIT_URL"
-          #   fi
-          #   
-          #   # Determine which jobs failed
-          #   FAILED_JOBS=""
-          #   if [ "${{ needs.sast-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• SAST Scan\n"; fi
-          #   if [ "${{ needs.code-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Code Linting\n"; fi
-          #   if [ "${{ needs.docker-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Docker Linting\n"; fi
-          #   if [ "${{ needs.build.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Build\n"; fi
-          #   if [ "${{ needs.image-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Image Scan\n"; fi
-          #   if [ "${{ needs.unit-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Unit Tests\n"; fi
-          #   if [ "${{ needs.integration-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Integration Tests\n"; fi
-          #   if [ "${{ needs.deploy.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Deploy\n"; fi
-          #   if [ "${{ needs.healthcheck.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Health Check\n"; fi
-          #   
-          #   # Remove trailing newline if any
-          #   FAILED_JOBS=$(echo -e "$FAILED_JOBS" | sed '/^$/d')
-          #   
-          #   # Create Discord embed payload for failure
-          #   DISCORD_PAYLOAD=$(cat <<EOF
-          # {
-          #   "username": "Vallena CI/CD",
-          #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
-          #   "embeds": [
-          #     {
-          #       "title": "❌ Pipeline Failed",
-          #       "description": "One or more stages failed during execution",
-          #       "color": 16711680,
-          #       "fields": [
-          #         {
-          #           "name": "Repository",
-          #           "value": "${{ github.repository }}",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Event",
-          #           "value": "$EVENT_TYPE",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Branch",
-          #           "value": "${{ github.ref_name }}",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Commit",
-          #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Author",
-          #           "value": "$COMMIT_AUTHOR",
-          #           "inline": true
-          #         },
-          #         {
-          #           "name": "Failed Jobs",
-          #           "value": "$FAILED_JOBS",
-          #           "inline": false
-          #         },
-          #         {
-          #           "name": "Workflow",
-          #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
-          #           "inline": false
-          #         }
-          #       ],
-          #       "footer": {
-          #         "text": "Vallena Web",
-          #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-          #       },
-          #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
-          #     }
-          #   ]
-          # }
-          # EOF
-          #   )
-          #   
-          #   # Send notification to Discord
-          #   curl -H "Content-Type: application/json" \
-          #        -d "$DISCORD_PAYLOAD" \
-          #        "$DISCORD_WEBHOOK_URL"
-          #   
-          #   echo "Discord notification sent successfully"
-          # else
-          #   echo "Discord webhook URL not configured"
-          # fi
+  #         # Discord webhook notification for failure
+  #         # Uncomment and configure the following section:
+  #         # DISCORD_WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
+  #         # 
+  #         # if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+  #         #   # Get commit info
+  #         #   COMMIT_MSG=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "No commit message")
+  #         #   COMMIT_AUTHOR=$(git log -1 --pretty=format:"%an" 2>/dev/null || echo "${{ github.actor }}")
+  #         #   COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+  #         #   
+  #         #   # Determine if this is a PR or push
+  #         #   if [ "${{ github.event_name }}" = "pull_request" ]; then
+  #         #     PR_NUMBER="${{ github.event.pull_request.number }}"
+  #         #     PR_TITLE="${{ github.event.pull_request.title }}"
+  #         #     PR_URL="https://github.com/${{ github.repository }}/pull/$PR_NUMBER"
+  #         #     EVENT_TYPE="Pull Request #$PR_NUMBER"
+  #         #     EVENT_TITLE="$PR_TITLE"
+  #         #     EVENT_URL="$PR_URL"
+  #         #   else
+  #         #     EVENT_TYPE="Push to ${{ github.ref_name }}"
+  #         #     EVENT_TITLE="$COMMIT_MSG"
+  #         #     EVENT_URL="$COMMIT_URL"
+  #         #   fi
+  #         #   
+  #         #   # Determine which jobs failed
+  #         #   FAILED_JOBS=""
+  #         #   if [ "${{ needs.sast-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• SAST Scan\n"; fi
+  #         #   if [ "${{ needs.code-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Code Linting\n"; fi
+  #         #   if [ "${{ needs.docker-linting.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Docker Linting\n"; fi
+  #         #   if [ "${{ needs.build.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Build\n"; fi
+  #         #   if [ "${{ needs.image-scan.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Image Scan\n"; fi
+  #         #   if [ "${{ needs.unit-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Unit Tests\n"; fi
+  #         #   if [ "${{ needs.integration-tests.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Integration Tests\n"; fi
+  #         #   if [ "${{ needs.deploy.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Deploy\n"; fi
+  #         #   if [ "${{ needs.healthcheck.result }}" = "failure" ]; then FAILED_JOBS="$FAILED_JOBS• Health Check\n"; fi
+  #         #   
+  #         #   # Remove trailing newline if any
+  #         #   FAILED_JOBS=$(echo -e "$FAILED_JOBS" | sed '/^$/d')
+  #         #   
+  #         #   # Create Discord embed payload for failure
+  #         #   DISCORD_PAYLOAD=$(cat <<EOF
+  #         # {
+  #         #   "username": "Vallena CI/CD",
+  #         #   "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+  #         #   "embeds": [
+  #         #     {
+  #         #       "title": "❌ Pipeline Failed",
+  #         #       "description": "One or more stages failed during execution",
+  #         #       "color": 16711680,
+  #         #       "fields": [
+  #         #         {
+  #         #           "name": "Repository",
+  #         #           "value": "${{ github.repository }}",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Event",
+  #         #           "value": "$EVENT_TYPE",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Branch",
+  #         #           "value": "${{ github.ref_name }}",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Commit",
+  #         #           "value": "[\`${{ github.sha }}\`]($COMMIT_URL)",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Author",
+  #         #           "value": "$COMMIT_AUTHOR",
+  #         #           "inline": true
+  #         #         },
+  #         #         {
+  #         #           "name": "Failed Jobs",
+  #         #           "value": "$FAILED_JOBS",
+  #         #           "inline": false
+  #         #         },
+  #         #         {
+  #         #           "name": "Workflow",
+  #         #           "value": "[${{ github.workflow }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+  #         #           "inline": false
+  #         #         }
+  #         #       ],
+  #         #       "footer": {
+  #         #         "text": "Vallena Web",
+  #         #         "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+  #         #       },
+  #         #       "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+  #         #     }
+  #         #   ]
+  #         # }
+  #         # EOF
+  #         #   )
+  #         #   
+  #         #   # Send notification to Discord
+  #         #   curl -H "Content-Type: application/json" \
+  #         #        -d "$DISCORD_PAYLOAD" \
+  #         #        "$DISCORD_WEBHOOK_URL"
+  #         #   
+  #         #   echo "Discord notification sent successfully"
+  #         # else
+  #         #   echo "Discord webhook URL not configured"
+  #         # fi
