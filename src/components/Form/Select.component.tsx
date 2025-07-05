@@ -1,16 +1,16 @@
-import React, { type CSSProperties, useEffect, useState } from "react";
-import { Select } from "antd";
-import { type SelectProps } from "antd/lib/select";
-import { CheckValue } from "../../shared";
+import React, { type CSSProperties, useEffect, useState } from 'react';
+import { Select } from 'antd';
+import { type SelectProps } from 'antd/lib/select';
+import { CheckValue } from '../../shared';
 
-export type SizeType = "small" | "middle" | "large";
+export type SizeType = 'small' | 'middle' | 'large';
 
 export interface SelectOptionI {
   label: string;
   value?: string;
-  data?: any;
-  action?: (e: any, ...params: any) => void;
-  actionParams?: any[];
+  data?: unknown;
+  action?: (e: unknown, ...params: unknown[]) => void;
+  actionParams?: unknown[];
 }
 
 export interface SelectI {
@@ -29,23 +29,30 @@ export interface SelectI {
   allowClear?: boolean;
 }
 
-export const CustomSelect: React.FunctionComponent<SelectI> = (props: SelectI) => {
+export const CustomSelect: React.FunctionComponent<SelectI> = (
+  props: SelectI
+) => {
   const [value, setValue] = useState<string | undefined>(props.defaultValue);
   const [options, setOptions] = useState<SelectOptionI[]>(props.options || []);
 
-  const onChange: SelectProps<string>["onChange"] = (value: string, option: any) => {
+  const onChange: SelectProps<string>['onChange'] = (
+    value: string,
+    _option: unknown
+  ) => {
     if (props.onChange) props.onChange(value);
     if (!value) {
       props.deleteFilter(props.type);
       setValue(undefined);
       return;
     }
-    const selectedOption = options.find((opt) => opt.value === value);
-    props.onAction && props.onAction(value, selectedOption);
+    const selectedOption = options.find(opt => opt.value === value);
+    if (props.onAction) {
+      props.onAction(value, selectedOption);
+    }
     setValue(value);
   };
 
-  const onSearch: SelectProps<string>["onSearch"] = (value: string) => {
+  const onSearch: SelectProps<string>['onSearch'] = (value: string) => {
     if (props.onSearch) props.onSearch(value);
     return;
   };
@@ -57,20 +64,24 @@ export const CustomSelect: React.FunctionComponent<SelectI> = (props: SelectI) =
         .then((fetchedOptions: SelectOptionI[] = []) => {
           setOptions(fetchedOptions);
         })
-        .catch((error) => {});
+        .catch(_error => {
+          // Handle error silently
+        });
     }
-  }, [props.fetchOptions]);
+  }, [props]);
 
   return (
     <Select
       value={value}
-      allowClear={CheckValue.isUndefined(props.allowClear) ? true : props.allowClear}
-      size={props.size || "large"}
+      allowClear={
+        CheckValue.isUndefined(props.allowClear) ? true : props.allowClear
+      }
+      size={props.size || 'large'}
       style={{ width: 200, ...props.styles }}
       showSearch
       placeholder={props.placeholder}
       filterOption={(input, option) =>
-        typeof option?.label === "string" &&
+        typeof option?.label === 'string' &&
         option.label.toLowerCase().includes(input.toLowerCase())
       }
       onChange={onChange}

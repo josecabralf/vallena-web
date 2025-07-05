@@ -1,4 +1,4 @@
-import { createContext } from "react";
+import { createContext } from 'react';
 
 interface AuthContextType {
   logged: boolean;
@@ -8,4 +8,6 @@ interface AuthContextType {
   setUserName: (userName: string) => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);

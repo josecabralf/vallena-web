@@ -18,6 +18,6 @@ export class Number {
    * 123.4567  -> 123,4567
    */
   static formatCurrency(value: number): string {
-    return value.toLocaleString("es-AR");
+    return value.toLocaleString('es-AR');
   }
 }

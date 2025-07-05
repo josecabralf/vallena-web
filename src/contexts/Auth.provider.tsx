@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { AuthService, UserService } from "../services";
-import { AuthContext } from "./Auth.context";
-import { Spin } from "antd";
+import React, { useEffect, useState } from 'react';
+import { AuthService, UserService } from '../services';
+import { AuthContext } from './Auth.context';
+import { Spin } from 'antd';
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [logged, setLogged] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [userName, setUserName] = useState<string>("");
+  const [userName, setUserName] = useState<string>('');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -15,7 +17,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userName = await UserService.getUserName();
         setLogged(true);
         setUserName(userName);
-      } catch (error) {
+      } catch {
         setLogged(false);
       } finally {
         setLoading(false);
@@ -29,11 +31,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return (
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          width: '100%',
         }}
       >
         <Spin size="large" />
@@ -42,7 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ logged, setLogged, loading, setUserName, userName }}>
+    <AuthContext.Provider
+      value={{ logged, setLogged, loading, setUserName, userName }}
+    >
       {children}
     </AuthContext.Provider>
   );

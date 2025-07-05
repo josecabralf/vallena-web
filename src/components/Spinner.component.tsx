@@ -1,9 +1,9 @@
-import React, { type CSSProperties } from "react";
-import { Spin } from "antd";
+import React, { type CSSProperties } from 'react';
+import { Spin } from 'antd';
 
 export interface Props {
-  animation?: "border" | "grow";
-  size?: "sm" | "md";
+  animation?: 'border' | 'grow';
+  size?: 'sm' | 'md';
   style?: CSSProperties;
 }
 export const Spinner: React.FunctionComponent<Props> = (props: Props) => {
@@ -11,7 +11,7 @@ export const Spinner: React.FunctionComponent<Props> = (props: Props) => {
     <Spin
       style={{
         //     color: colors.primary,
-        backgroundColor: "transparent",
+        backgroundColor: 'transparent',
         ...props.style,
       }}
     />

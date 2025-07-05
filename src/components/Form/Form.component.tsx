@@ -1,14 +1,24 @@
-import { type ReactNode, type CSSProperties, useEffect, memo, type JSX } from "react";
-import { useForm, type SubmitHandler, type FieldValues, FormProvider } from "react-hook-form";
-import { Button } from "..";
-import React from "react";
+import {
+  type ReactNode,
+  type CSSProperties,
+  useEffect,
+  memo,
+  type JSX,
+} from 'react';
+import {
+  useForm,
+  type SubmitHandler,
+  type FieldValues,
+  FormProvider,
+} from 'react-hook-form';
+import { Button } from '..';
 
 interface CustomFormProps<T extends FieldValues> {
   children: ReactNode;
   submitButton?: ReactNode;
   style?: CSSProperties;
   submitText?: string;
-  onSubmitForm?: (data: T) => Promise<any>;
+  onSubmitForm?: (data: T) => Promise<unknown>;
   showSubmitButton?: boolean;
   buttonStyles?: CSSProperties;
   defaultValues: T;
@@ -32,10 +42,10 @@ const CustomFormComponent = <T extends FieldValues>({
     if (defaultValues) {
       methods.reset(defaultValues);
     }
-  }, [defaultValues]);
+  }, [defaultValues, methods]);
 
-  const onSubmit: SubmitHandler<T> = (data) => {
-    onSubmitForm && onSubmitForm(data);
+  const onSubmit: SubmitHandler<T> = data => {
+    onSubmitForm?.(data);
   };
 
   return (
@@ -49,7 +59,7 @@ const CustomFormComponent = <T extends FieldValues>({
             <Button
               style={{ marginTop: 2, marginBottom: 2, ...buttonStyles }}
               htmlType="submit"
-              title={submitText || "Guardar"}
+              title={submitText || 'Guardar'}
               onClick={() => {}}
               loading={isLoading}
             />
@@ -61,5 +71,5 @@ const CustomFormComponent = <T extends FieldValues>({
 
 // Memoize the component and handle TypeScript generics
 export const CustomForm = memo(CustomFormComponent) as <T extends FieldValues>(
-  props: CustomFormProps<T>,
+  props: CustomFormProps<T>
 ) => JSX.Element;

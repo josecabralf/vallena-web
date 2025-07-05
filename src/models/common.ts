@@ -35,7 +35,12 @@ export class PaginatedResult<T> {
   pageNumber: number;
   pageSize: number;
 
-  constructor(items: T[], totalItems: number, currentPage: number, pageSize: number) {
+  constructor(
+    items: T[],
+    totalItems: number,
+    currentPage: number,
+    pageSize: number
+  ) {
     this.items = items;
     this.totalCount = totalItems;
     this.pageNumber = currentPage;

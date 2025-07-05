@@ -1,9 +1,8 @@
-import React from "react";
-import { Row, Col, Table, type TableProps } from "antd";
-import { Button } from ".";
+import { Row, Col, Table, type TableProps } from 'antd';
+import { Button } from '.';
 
 interface CustomTableProps<T> {
-  columns: TableProps<T>["columns"];
+  columns: TableProps<T>['columns'];
   data: T[];
   loading: boolean;
   onNew: () => void;
@@ -17,12 +16,12 @@ export const CustomTable = <T extends object>({
   loading,
   onNew,
   buttonTitle,
-  emptyText = "No se encontraron elementos",
+  emptyText = 'No se encontraron elementos',
 }: CustomTableProps<T>) => {
   return (
     <div>
-      {buttonTitle !== "" && (
-        <Row justify="end" style={{ marginBottom: "16px" }}>
+      {buttonTitle !== '' && (
+        <Row justify="end" style={{ marginBottom: '16px' }}>
           <Col>
             <Button onClick={onNew} title={buttonTitle} type="primary" />
           </Col>

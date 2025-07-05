@@ -1,15 +1,13 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Input, Row } from "antd";
-import { CustomForm, FlexBox, FormInput, Paragraph, Icon } from "../components";
-import { AuthService, UserService } from "../services";
-import type { Auth } from "../models";
-import { useToast, useAuth } from "../hooks";
-import { colors } from "../config";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Input, Row } from 'antd';
+import { CustomForm, FlexBox, FormInput, Paragraph, Icon } from '../components';
+import { AuthService, UserService } from '../services';
+import type { Auth } from '../models';
+import { useToast, useAuth } from '../hooks';
+import { colors } from '../config';
 
-interface LoginScreenProps {}
-
-export const LoginScreen: React.FC<LoginScreenProps> = () => {
+export const LoginScreen: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { setLogged, setUserName } = useAuth();
@@ -22,9 +20,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       const userName = await UserService.getUserName();
       setLogged(true);
       setUserName(userName);
-      navigate("/dashboard");
-    } catch (error: any) {
-      showToast({ message: error.message, type: "error" });
+      navigate('/dashboard');
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred';
+      showToast({ message: errorMessage, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -33,14 +33,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
   return (
     <div
       style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundImage: "url(/login_background.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundImage: 'url(/login_background.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       <FlexBox
@@ -49,43 +49,46 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
         alignItems="center"
         style={{
           maxWidth: 400,
-          width: "100%",
-          padding: "20px",
+          width: '100%',
+          padding: '20px',
         }}
       >
-        <img src="/vallena_logo_3d.png" style={{ width: "150px", height: "150px" }} />
+        <img
+          src="/vallena_logo_3d.png"
+          style={{ width: '150px', height: '150px' }}
+        />
         <Paragraph
           text="VALLENA S.A"
           variant="h1"
-          style={{ textAlign: "center", marginBottom: "20%" }}
+          style={{ textAlign: 'center', marginBottom: '20%' }}
         />
         <FlexBox direction="column" justifyContent="center">
           <CustomForm
-            defaultValues={{ usernameOrEmail: "", password: "" }}
-            onSubmitForm={async (data) => {
+            defaultValues={{ usernameOrEmail: '', password: '' }}
+            onSubmitForm={async data => {
               handleSubmit(data);
             }}
             showSubmitButton={true}
             buttonStyles={{
               marginTop: 10,
               backgroundColor: colors.info,
-              color: "white",
-              margin: "0 auto",
-              display: "block",
+              color: 'white',
+              margin: '0 auto',
+              display: 'block',
             }}
             submitText="Ingresar"
             isLoading={isLoading}
             style={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
             }}
           >
             <Row style={{ marginBottom: 16 }}>
               <FormInput<Auth>
                 name="usernameOrEmail"
                 rules={{
-                  required: "Correo electrónico o nombre de usuario requerido",
+                  required: 'Correo electrónico o nombre de usuario requerido',
                 }}
               >
                 <Input
@@ -100,15 +103,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
               <FormInput<Auth>
                 name="password"
                 rules={{
-                  required: "Contraseña requerida",
+                  required: 'Contraseña requerida',
                 }}
               >
                 <Input.Password
                   placeholder="Contraseña"
                   prefix={<Icon name="lock" color="#1890ff" />}
                   style={{ minWidth: 400, height: 40 }}
-                  iconRender={(visible) =>
-                    visible ? <Icon name="eyeTwoTone" /> : <Icon name="eyeInvisible" />
+                  iconRender={visible =>
+                    visible ? (
+                      <Icon name="eyeTwoTone" />
+                    ) : (
+                      <Icon name="eyeInvisible" />
+                    )
                   }
                 />
               </FormInput>

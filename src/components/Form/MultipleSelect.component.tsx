@@ -1,16 +1,16 @@
-import React, { type CSSProperties, useEffect, useState } from "react";
-import { Select } from "antd";
-import { type SelectProps } from "antd/lib/select";
-import { CheckValue } from "../../shared";
+import React, { type CSSProperties, useEffect, useState } from 'react';
+import { Select } from 'antd';
+import { type SelectProps } from 'antd/lib/select';
+import { CheckValue } from '../../shared';
 
-export type SizeType = "small" | "middle" | "large";
+export type SizeType = 'small' | 'middle' | 'large';
 
 export interface SelectOptionI {
   label: string;
   value?: string;
-  data?: any;
-  action?: (e: any, ...params: any) => void;
-  actionParams?: any[];
+  data?: unknown;
+  action?: (e: unknown, ...params: unknown[]) => void;
+  actionParams?: unknown[];
 }
 
 export interface SelectI {
@@ -26,14 +26,19 @@ export interface SelectI {
   size?: SizeType;
   onChange?: (values: string[]) => void;
   allowClear?: boolean;
-  mode?: "multiple" | "tags";
+  mode?: 'multiple' | 'tags';
 }
 
-export const MultiSelect: React.FunctionComponent<SelectI> = (props: SelectI) => {
+export const MultiSelect: React.FunctionComponent<SelectI> = (
+  props: SelectI
+) => {
   const [value, setValue] = useState<string[] | undefined>(props.defaultValue);
   const [options, setOptions] = useState<SelectOptionI[]>(props.options || []);
 
-  const onChange: SelectProps<string[]>["onChange"] = (values: string[], options: any) => {
+  const onChange: SelectProps<string[]>['onChange'] = (
+    values: string[],
+    options: unknown
+  ) => {
     if (props.onChange) props.onChange(values);
 
     if (!values || values.length === 0) {
@@ -42,13 +47,17 @@ export const MultiSelect: React.FunctionComponent<SelectI> = (props: SelectI) =>
       return;
     }
 
-    const selectedOptions = options.map((option: any) => ({
+    const selectedOptions = (
+      options as Array<{ label: string; value: string; data: unknown }>
+    ).map(option => ({
       label: option.label,
       value: option.value,
       data: option.data,
     }));
 
-    props.onAction && props.onAction(values, selectedOptions);
+    if (props.onAction) {
+      props.onAction(values, selectedOptions);
+    }
     setValue(values);
   };
 
@@ -59,9 +68,11 @@ export const MultiSelect: React.FunctionComponent<SelectI> = (props: SelectI) =>
         .then((fetchedOptions: SelectOptionI[] = []) => {
           setOptions(fetchedOptions);
         })
-        .catch((error) => {});
+        .catch(_error => {
+          // Handle error silently
+        });
     }
-  }, [props.fetchOptions]);
+  }, [props]);
 
   useEffect(() => {
     // Update value when defaultValue prop changes
@@ -72,15 +83,17 @@ export const MultiSelect: React.FunctionComponent<SelectI> = (props: SelectI) =>
 
   return (
     <Select
-      mode={props.mode || "multiple"}
+      mode={props.mode || 'multiple'}
       value={value}
-      allowClear={CheckValue.isUndefined(props.allowClear) ? true : props.allowClear}
-      size={props.size || "large"}
+      allowClear={
+        CheckValue.isUndefined(props.allowClear) ? true : props.allowClear
+      }
+      size={props.size || 'large'}
       style={{ width: 200, ...props.styles }}
       showSearch
       placeholder={props.placeholder}
       filterOption={(input, option) =>
-        typeof option?.label === "string" &&
+        typeof option?.label === 'string' &&
         option.label.toLowerCase().includes(input.toLowerCase())
       }
       onChange={onChange}

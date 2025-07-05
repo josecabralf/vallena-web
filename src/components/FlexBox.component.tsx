@@ -1,36 +1,36 @@
-import React from "react";
+import React from 'react';
 
 type FlexDirection =
-  | "-moz-initial"
-  | "column"
-  | "column-reverse"
-  | "inherit"
-  | "initial"
-  | "revert"
-  | "revert-layer"
-  | "row"
-  | "row-reverse"
-  | "unset";
+  | '-moz-initial'
+  | 'column'
+  | 'column-reverse'
+  | 'inherit'
+  | 'initial'
+  | 'revert'
+  | 'revert-layer'
+  | 'row'
+  | 'row-reverse'
+  | 'unset';
 
-type FlexWrap = "nowrap" | "wrap" | "wrap-reverse";
+type FlexWrap = 'nowrap' | 'wrap' | 'wrap-reverse';
 
 type FlexJustify =
-  | "flex-start"
-  | "center"
-  | "flex-end"
-  | "space-between"
-  | "space-around"
-  | "space-evenly";
+  | 'flex-start'
+  | 'center'
+  | 'flex-end'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';
 
-type FlexAlign = "flex-start" | "center" | "flex-end" | "stretch" | "baseline";
+type FlexAlign = 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
 
 type FlexAlignContent =
-  | "flex-start"
-  | "center"
-  | "flex-end"
-  | "space-between"
-  | "space-around"
-  | "stretch";
+  | 'flex-start'
+  | 'center'
+  | 'flex-end'
+  | 'space-between'
+  | 'space-around'
+  | 'stretch';
 
 interface FlexBoxProps {
   direction?: FlexDirection;
@@ -48,11 +48,11 @@ interface FlexBoxProps {
 }
 
 export const FlexBox: React.FC<FlexBoxProps> = ({
-  direction = "row",
-  wrap = "nowrap",
-  justifyContent = "flex-start",
-  alignItems = "stretch",
-  alignContent = "stretch",
+  direction = 'row',
+  wrap = 'nowrap',
+  justifyContent = 'flex-start',
+  alignItems = 'stretch',
+  alignContent = 'stretch',
   gap = 0,
   style,
   className,
@@ -61,12 +61,18 @@ export const FlexBox: React.FC<FlexBoxProps> = ({
   onFocus,
   onBlur,
 }) => {
-  const gapStyle = direction.startsWith("row") ? { columnGap: gap } : { rowGap: gap };
+  const formatGap = (gap: number | string) => {
+    return typeof gap === 'number' ? `${gap}px` : gap;
+  };
+
+  const gapStyle = direction.startsWith('row')
+    ? { columnGap: formatGap(gap) }
+    : { rowGap: formatGap(gap) };
 
   return (
     <div
       style={{
-        display: "flex",
+        display: 'flex',
         flexDirection: direction,
         flexWrap: wrap,
         justifyContent: justifyContent,

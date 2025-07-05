@@ -5,12 +5,14 @@ interface ValidationI {
 export class ConditionValidator {
   errors: string[] = [];
 
-  constructor({ validations }: { validations?: ValidationI[] }) {
-    validations && this.validate(validations);
+  constructor({ validations }: { validations?: ValidationI[] } = {}) {
+    if (validations) {
+      this.validate(validations);
+    }
   }
 
   validate(validations: ValidationI[]): void {
-    validations.forEach((validation) => {
+    validations.forEach(validation => {
       if (validation.condition) this.errors.push(validation.message);
     });
   }
@@ -24,6 +26,6 @@ export class ConditionValidator {
   }
 
   toString = () => {
-    return `${this.errors.join("; ")}`;
+    return `${this.errors.join('; ')}`;
   };
 }

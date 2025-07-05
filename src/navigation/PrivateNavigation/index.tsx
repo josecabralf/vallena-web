@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import { Layout, theme } from "antd";
-import { useNavigate } from "react-router-dom";
-import { observer } from "mobx-react";
-import { useAuth } from "../../hooks";
-import { AuthService } from "../../services";
-import { Header } from "./Header";
-import { Sidebar } from "./Sidebar";
-import { Content } from "./Content";
+import { useState } from 'react';
+import { Layout, theme } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react';
+import { useAuth } from '../../hooks';
+import { AuthService } from '../../services';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
+import { Content } from './Content';
 
 const { Sider } = Layout;
 
-const PrivateNavigation: React.FC = () => {
+const PrivateNavigationComponent = observer(function PrivateNavigation() {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer },
@@ -20,12 +20,12 @@ const PrivateNavigation: React.FC = () => {
   const { logged, setLogged, userName } = useAuth();
 
   if (!logged) {
-    navigate("/login");
+    navigate('/login');
     return null;
   }
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ minHeight: '100vh' }}>
       <Header userName={userName} />
 
       <Layout>
@@ -36,8 +36,8 @@ const PrivateNavigation: React.FC = () => {
           onCollapse={setCollapsed}
         >
           <Sidebar
-            onNavigate={(key) => {
-              if (key === "logout") {
+            onNavigate={key => {
+              if (key === 'logout') {
                 AuthService.logout().then(() => setLogged(false));
               } else {
                 navigate(`/${key}`);
@@ -49,6 +49,6 @@ const PrivateNavigation: React.FC = () => {
       </Layout>
     </Layout>
   );
-};
+});
 
-export default observer(PrivateNavigation);
+export default PrivateNavigationComponent;

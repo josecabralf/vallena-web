@@ -1,17 +1,17 @@
-import type { Auth } from "../models";
-import { FetchService } from "./Fetch.service";
+import type { Auth } from '../models';
+import { FetchService } from './Fetch.service';
 
-const SERVICE_EP = "/Auth";
+const SERVICE_EP = '/Auth';
 
 export class AuthService {
   static async login(credentials: Auth) {
     await FetchService.request({
       endpoint: `${SERVICE_EP}/login`,
       options: {
-        method: "POST",
-        credentials: "include",
+        method: 'POST',
+        credentials: 'include',
       },
-      body: credentials,
+      body: credentials as unknown as Record<string, unknown>,
     });
   }
 
@@ -19,8 +19,8 @@ export class AuthService {
     await FetchService.request({
       endpoint: `${SERVICE_EP}/logout`,
       options: {
-        method: "GET",
-        credentials: "include",
+        method: 'GET',
+        credentials: 'include',
       },
     });
   }

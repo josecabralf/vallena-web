@@ -1,6 +1,6 @@
-import "./App.css";
-import { AuthProvider, ToastProvider } from "./contexts";
-import { AppNavigation } from "./navigation";
+import './App.css';
+import { AuthProvider, ToastProvider } from './contexts';
+import { AppNavigation } from './navigation';
 
 function App() {
   return (

@@ -1,20 +1,20 @@
-import type { User } from "../models";
-import { FetchService } from "./Fetch.service";
+import type { User } from '../models';
+import { FetchService } from './Fetch.service';
 
 interface PasswordBody {
   currentPassword: string;
   newPassword: string;
 }
 
-const SERVICE_EP = "/Users";
+const SERVICE_EP = '/Users';
 export class UserService {
   static async create(user: User) {
     await FetchService.request({
       endpoint: `${SERVICE_EP}`,
       options: {
-        method: "POST",
+        method: 'POST',
       },
-      body: user,
+      body: user as unknown as Record<string, unknown>,
     });
   }
 
@@ -22,27 +22,27 @@ export class UserService {
     await FetchService.request({
       endpoint: `${SERVICE_EP}?userId=${user.id}`,
       options: {
-        method: "PUT",
+        method: 'PUT',
       },
-      body: user,
+      body: user as unknown as Record<string, unknown>,
     });
   }
 
   static async getAll(): Promise<User[]> {
-    const users = await FetchService.request({
+    const users = await FetchService.request<User[]>({
       endpoint: `${SERVICE_EP}`,
       options: {
-        method: "GET",
+        method: 'GET',
       },
     });
     return users;
   }
 
   static async getOne(id: string): Promise<User> {
-    const user = await FetchService.request({
+    const user = await FetchService.request<User>({
       endpoint: `${SERVICE_EP}/${id}`,
       options: {
-        method: "GET",
+        method: 'GET',
       },
     });
     return user;
@@ -52,7 +52,7 @@ export class UserService {
     const user = await FetchService.request({
       endpoint: `${SERVICE_EP}/${id}`,
       options: {
-        method: "DELETE",
+        method: 'DELETE',
       },
     });
     return user;
@@ -62,9 +62,9 @@ export class UserService {
     await FetchService.request({
       endpoint: `${SERVICE_EP}/password/${id}`,
       options: {
-        method: "PUT",
+        method: 'PUT',
       },
-      body: passwordBody,
+      body: passwordBody as unknown as Record<string, unknown>,
     });
   }
 
@@ -72,7 +72,7 @@ export class UserService {
     const roles = await FetchService.request({
       endpoint: `${SERVICE_EP}/roles`,
       options: {
-        method: "GET",
+        method: 'GET',
       },
     });
     return roles;
@@ -86,14 +86,14 @@ export class UserService {
     //   }
     // });
     // return userName;
-    return "Guest"; // Placeholder, as the endpoint is commented out
+    return 'Guest'; // Placeholder, as the endpoint is commented out
   }
 
   static async sendConfirmationEmail(id: string) {
     await FetchService.request({
       endpoint: `${SERVICE_EP}/SendEmailValidation/${id}`,
       options: {
-        method: "GET",
+        method: 'GET',
       },
     });
   }

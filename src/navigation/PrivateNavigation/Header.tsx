@@ -1,13 +1,13 @@
-import React from "react";
-import { Layout } from "antd";
+import React from 'react';
+import { Layout } from 'antd';
 
 const { Header: AntHeader } = Layout;
 
 const HEADER_STYLE = {
-  display: "flex",
-  alignItems: "center",
-  padding: "0 25px",
-  backgroundColor: "#001529",
+  display: 'flex',
+  alignItems: 'center',
+  padding: '0 25px',
+  backgroundColor: '#001529',
   height: 64,
 };
 
@@ -21,10 +21,10 @@ export const Header: React.FC<Props> = ({ userName }) => {
       <div
         style={{
           width: 180,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
         }}
       >
         <img
@@ -32,8 +32,8 @@ export const Header: React.FC<Props> = ({ userName }) => {
           alt="Logo"
           style={{
             height: 40,
-            width: "auto",
-            filter: "invert(1) brightness(2)",
+            width: 'auto',
+            filter: 'invert(1) brightness(2)',
           }}
         />
       </div>
@@ -41,9 +41,9 @@ export const Header: React.FC<Props> = ({ userName }) => {
       {/* Usuario alineado a la derecha */}
       <div
         style={{
-          marginLeft: "auto",
-          color: "white",
-          fontWeight: "bold",
+          marginLeft: 'auto',
+          color: 'white',
+          fontWeight: 'bold',
         }}
       >
         {userName}

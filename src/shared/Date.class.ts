@@ -1,5 +1,5 @@
-import moment, { type Moment } from "moment";
-import { Dayjs } from "dayjs";
+import moment, { type Moment } from 'moment';
+import { Dayjs } from 'dayjs';
 export class Date {
   private date: Moment;
 
@@ -13,13 +13,13 @@ export class Date {
   }
 
   // Format the date
-  format(formatStr: "TIME-STAMP" | string): string {
-    if (formatStr === "TIME-STAMP") return this.toISOString();
+  format(formatStr: 'TIME-STAMP' | string): string {
+    if (formatStr === 'TIME-STAMP') return this.toISOString();
     return this.date.format(formatStr);
   }
 
   toISOString(): string {
-    return this.format("YYYY-MM-DD HH:mm:ss");
+    return this.format('YYYY-MM-DD HH:mm:ss');
   }
 
   // Parse a date string
@@ -40,25 +40,28 @@ export class Date {
 
   // Add days to the date
   addDays(days: number): Date {
-    this.date = this.date.add(days, "days");
+    this.date = this.date.add(days, 'days');
     return this;
   }
 
   // Add milliseconds with timezone adjustment
-  addMillisecondsWithOffset(milliseconds: number, offset: string = "-03:00"): Date {
-    this.date = this.date.utcOffset(offset).add(milliseconds, "milliseconds");
+  addMillisecondsWithOffset(
+    milliseconds: number,
+    offset: string = '-03:00'
+  ): Date {
+    this.date = this.date.utcOffset(offset).add(milliseconds, 'milliseconds');
     return this;
   }
 
   // Subtract days from the date
   subtractDays(days: number): Date {
-    this.date = this.date.subtract(days, "days");
+    this.date = this.date.subtract(days, 'days');
     return this;
   }
 
   // subtract hours from the date
   substractHours(hours: number): Date {
-    this.date = this.date.subtract(hours, "hours");
+    this.date = this.date.subtract(hours, 'hours');
     return this;
   }
 
@@ -102,38 +105,43 @@ export class Date {
     return this.date.milliseconds();
   }
 
-  addDuration(duration: string, offset: string = "-03:00"): Date {
+  addDuration(duration: string, offset: string = '-03:00'): Date {
     const milliseconds = moment.duration(duration).asMilliseconds();
     return this.addMillisecondsWithOffset(milliseconds, offset);
   }
 
   // Start of the day
-  startOf(day: "day" | "month" | "year"): Date {
+  startOf(day: 'day' | 'month' | 'year'): Date {
     this.date.startOf(day);
     return this;
   }
 
   // End of the day
-  endOf(day: "day" | "month" | "year"): Date {
+  endOf(day: 'day' | 'month' | 'year'): Date {
     this.date.endOf(day);
     return this;
   }
 
   // To nearest hour
   toNearestHour() {
-    return this.date.startOf("hour");
+    return this.date.startOf('hour');
   }
 
   // Check overlapping between intervals
-  static isTimeOverlap(start1: Date, end1: Date, start2: Date, end2: Date): boolean {
+  static isTimeOverlap(
+    start1: Date,
+    end1: Date,
+    start2: Date,
+    end2: Date
+  ): boolean {
     return start1.isBefore(end2) && end1.isAfter(start2);
   }
 
   // Parse a time string to ISO format
   static parseTime = (time: string) => {
-    const [hours, minutes] = time.split(":").map(Number);
+    const [hours, minutes] = time.split(':').map(Number);
     const date = Date.now().toMoment().hours(hours).minutes(minutes).seconds(0);
-    return date.format("YYYY-MM-DD HH:mm:ss");
+    return date.format('YYYY-MM-DD HH:mm:ss');
   };
 
   // Get time difference in a given time unit

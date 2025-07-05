@@ -1,39 +1,53 @@
 import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import tseslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import pluginReactRefresh from "eslint-plugin-react-refresh";
 import pluginPrettier from "eslint-plugin-prettier";
-import pluginReactNative from "eslint-plugin-react-native";
-import prettierConfig from "./.prettierrc.json" assert { type: "json" };
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default [
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    ignores: ["dist/**", "node_modules/**", "*.config.ts", "*.config.js"],
     languageOptions: {
-      parser: tseslint.parser,
+      parser: tsParser,
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: { jsx: true },
-        project: "./tsconfig.json",
+        projectService: true,
       },
       globals: { ...globals.browser, ...globals.node },
     },
     plugins: {
-      js,
-      "@typescript-eslint": tseslint.plugin,
+      "@typescript-eslint": tseslint,
       react: pluginReact,
-      "react-native": pluginReactNative,
+      "react-hooks": pluginReactHooks,
+      "react-refresh": pluginReactRefresh,
       prettier: pluginPrettier,
     },
     rules: {
       ...js.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
       ...pluginReact.configs.recommended.rules,
-      ...pluginReactNative.configs.all.rules,
-      "prettier/prettier": ["error", prettierConfig],
-      "react/react-in-jsx-scope": "off", // No es necesario en React 17+
+      ...pluginReactHooks.configs.recommended.rules,
+      "prettier/prettier": "error",
+      "linebreak-style": ["error", "unix"],
+      "react/react-in-jsx-scope": "off",
+      "react/prop-types": "off",
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
     },
   },
-]);
+];

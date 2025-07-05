@@ -1,13 +1,15 @@
-import React, { useEffect, useState, type ReactNode } from "react";
-import { ToastContext, type ToastProps, type ToastType } from "./Toast.context";
+import React, { useEffect, useState, type ReactNode } from 'react';
+import { ToastContext, type ToastProps, type ToastType } from './Toast.context';
 
-export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [toast, setToast] = useState<ToastProps | null>(null);
 
   const showToast = (props: ToastProps) => {
     setToast({
       message: props.message,
-      type: props.type || "info",
+      type: props.type || 'info',
       duration: props.duration || 3000,
     });
   };
@@ -24,10 +26,10 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const getColorByType = (type: ToastType) => {
     const colors = {
-      success: "#52c41a",
-      error: "#ff4d4f",
-      info: "#1890ff",
-      warning: "#faad14",
+      success: '#52c41a',
+      error: '#ff4d4f',
+      info: '#1890ff',
+      warning: '#faad14',
     };
     return colors[type];
   };
@@ -38,16 +40,16 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       {toast && (
         <div
           style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
             backgroundColor: getColorByType(toast.type),
-            color: "white",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             zIndex: 9999, // Highest z-index to ensure it's on top of everything
-            animation: "slideInUp 0.3s ease-out",
+            animation: 'slideInUp 0.3s ease-out',
           }}
         >
           {toast.message}

@@ -1,29 +1,29 @@
 export class CheckValue {
-  static isEmptyString = (value?: any) => {
-    return value === "";
+  static isEmptyString = (value?: unknown) => {
+    return value === '';
   };
 
-  static isUndefined = (value?: any) => {
+  static isUndefined = (value?: unknown) => {
     return value === undefined || value === null;
   };
 
-  static isArray = (value?: any) => {
+  static isArray = (value?: unknown): value is unknown[] => {
     return Array.isArray(value);
   };
 
-  static isObject = (value?: any) => {
-    return value !== null && typeof value === "object";
+  static isObject = (value?: unknown): value is Record<string, unknown> => {
+    return value !== null && typeof value === 'object';
   };
 
-  static isEmptyArray = (value?: any) => {
+  static isEmptyArray = (value?: unknown) => {
     return Array.isArray(value) && value.length === 0;
   };
 
-  static isEmptyObject = (value?: any) => {
+  static isEmptyObject = (value?: unknown) => {
     return CheckValue.isObject(value) && Object.keys(value).length === 0;
   };
 
-  static arrayLength = (value?: any): number => {
+  static arrayLength = (value?: unknown): number => {
     return CheckValue.isArray(value) ? value.length : 0;
   };
 }
@@ -37,7 +37,8 @@ export class Phone {
 }
 
 export class Email {
-  static readonly EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  static readonly EMAIL_REGEX =
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   static isValid = (mail?: string) => {
     return !CheckValue.isUndefined(mail) && Email.EMAIL_REGEX.test(mail!);

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { DatePicker } from "antd";
-import dayjs, { Dayjs } from "dayjs";
-import moment, { type Moment } from "moment";
+import React, { useEffect, useState } from 'react';
+import { DatePicker } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
+import moment, { type Moment } from 'moment';
 
 const { RangePicker } = DatePicker;
 
@@ -15,7 +15,7 @@ interface CustomDatePickerProps {
   style?: React.CSSProperties;
   placeholder?: string | [string, string];
   disabled?: boolean;
-  size?: "small" | "middle" | "large";
+  size?: 'small' | 'middle' | 'large';
   allowClear?: boolean;
   showTime?: boolean | { format: string };
   open?: boolean;
@@ -31,7 +31,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   isRange = false,
   value,
   onChange,
-  format = "YYYY-MM-DD",
+  format = 'YYYY-MM-DD',
   disabledDate,
   disablePastDates = false,
   style,
@@ -48,16 +48,16 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   onBlur,
   isEndOptional = true,
 }) => {
-  const [internalValue, setInternalValue] = useState<Moment | [Moment, Moment | null] | null>(
-    value || null,
-  );
+  const [internalValue, setInternalValue] = useState<
+    Moment | [Moment, Moment | null] | null
+  >(value || null);
 
   useEffect(() => {
     setInternalValue(value || null);
   }, [value]);
 
   const convertToDayjs = (
-    val: Moment | [Moment, Moment | null] | null,
+    val: Moment | [Moment, Moment | null] | null
   ): Dayjs | [Dayjs, Dayjs | null] | null => {
     if (!val) return null;
     if (moment.isMoment(val)) return dayjs(val.toISOString());
@@ -71,7 +71,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   };
 
   const convertToMoment = (
-    val: Dayjs | [Dayjs, Dayjs | null] | null,
+    val: Dayjs | [Dayjs, Dayjs | null] | null
   ): Moment | [Moment, Moment | null] | null => {
     if (!val) return null;
     if (dayjs.isDayjs(val)) return moment(val.toISOString());
@@ -93,18 +93,22 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   };
 
   const combinedDisabledDate = (current: Dayjs): boolean => {
-    const isBeforeToday = disablePastDates ? current.isBefore(dayjs(), "day") : false;
+    const isBeforeToday = disablePastDates
+      ? current.isBefore(dayjs(), 'day')
+      : false;
     return isBeforeToday || (disabledDate ? disabledDate(current) : false);
   };
 
   return isRange ? (
     <RangePicker
       value={convertToDayjs(internalValue) as [Dayjs, Dayjs | null]}
-      onChange={(dates) => handleChange(dates as [Dayjs, Dayjs | null])}
+      onChange={dates => handleChange(dates as [Dayjs, Dayjs | null])}
       format={format}
       disabledDate={combinedDisabledDate}
       style={style}
-      placeholder={Array.isArray(placeholder) ? placeholder : ["Start date", "End date"]}
+      placeholder={
+        Array.isArray(placeholder) ? placeholder : ['Start date', 'End date']
+      }
       disabled={disabled}
       size={size}
       allowClear={allowClear}
@@ -120,11 +124,13 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   ) : (
     <DatePicker
       value={convertToDayjs(internalValue) as Dayjs}
-      onChange={(date) => handleChange(date)}
+      onChange={date => handleChange(date)}
       format={format}
       disabledDate={combinedDisabledDate}
       style={style}
-      placeholder={typeof placeholder === "string" ? placeholder : "Select date"}
+      placeholder={
+        typeof placeholder === 'string' ? placeholder : 'Select date'
+      }
       disabled={disabled}
       size={size}
       allowClear={allowClear}
