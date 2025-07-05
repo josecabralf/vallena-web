@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useAuth } from '../../hooks/useAuth.hook';
-import { useToast } from '../../hooks/useToast.hook';
+import { useAuth } from '../../../hooks/useAuth.hook';
+import { useToast } from '../../../hooks/useToast.hook';
 
 describe('useAuth hook', () => {
   test('should throw error when used outside AuthProvider', () => {

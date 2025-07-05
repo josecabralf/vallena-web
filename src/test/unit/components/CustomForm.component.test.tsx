@@ -1,11 +1,11 @@
+import { CustomForm } from '../../../components/Form/Form.component';
+import { FormInput } from '../../../components/Form/FormInput.component';
 import { describe, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import '@testing-library/jest-dom';
-import { CustomForm } from '../../components/Form/Form.component';
-import { FormInput } from '../../components/Form/FormInput.component';
 import { Input } from 'antd';
+import '@testing-library/jest-dom';
 
 // Mock the form components needed
 vi.mock('react-hook-form', async () => {

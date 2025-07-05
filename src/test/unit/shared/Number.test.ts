@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { Number } from '../../shared/Number';
+import { Number } from '../../../shared/Number';
 
 describe('Number', () => {
   describe('formatCurrency', () => {

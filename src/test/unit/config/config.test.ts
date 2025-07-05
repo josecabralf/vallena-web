@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import { colors } from '../../config/colors';
-import { ICON_REGISTRY as icons } from '../../config/icons';
+import { colors } from '../../../config/colors';
+import { ICON_REGISTRY as icons } from '../../../config/icons';
 
 describe('Colors Config', () => {
   test('should export colors object', () => {

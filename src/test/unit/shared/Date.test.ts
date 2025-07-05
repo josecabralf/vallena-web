@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import moment from 'moment';
-import { Date } from '../../shared/Date.class';
+import { Date } from '../../../shared/Date.class';
 
 describe('Date', () => {
   beforeEach(() => {

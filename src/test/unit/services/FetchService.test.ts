@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { FetchService } from '../../services/Fetch.service';
+import { FetchService } from '../../../services/Fetch.service';
 
 // Mock import.meta.env
 vi.mock('import.meta', () => ({

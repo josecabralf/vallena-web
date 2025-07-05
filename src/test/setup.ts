@@ -1,6 +1,7 @@
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
+import '@testing-library/jest-dom';
 
 // Extends Vitest's expect method with methods from react-testing-library
 expect.extend(matchers);
@@ -48,10 +49,33 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 }));
 
 // Mock getComputedStyle for Ant Design components
-global.getComputedStyle = vi.fn().mockImplementation(() => ({
-  getPropertyValue: vi.fn(),
-  paddingLeft: '0px',
-  paddingRight: '0px',
-  borderLeftWidth: '0px',
-  borderRightWidth: '0px',
+Object.defineProperty(window, 'getComputedStyle', {
+  value: vi.fn().mockImplementation(() => ({
+    getPropertyValue: vi.fn().mockReturnValue(''),
+    width: '100px',
+    height: '100px',
+    fontSize: '16px',
+    paddingLeft: '0px',
+    paddingRight: '0px',
+    marginLeft: '0px',
+    marginRight: '0px',
+    borderLeftWidth: '0px',
+    borderRightWidth: '0px',
+  })),
+});
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = vi.fn();
+
+// Mock getBoundingClientRect
+Element.prototype.getBoundingClientRect = vi.fn(() => ({
+  width: 100,
+  height: 100,
+  top: 0,
+  left: 0,
+  bottom: 100,
+  right: 100,
+  x: 0,
+  y: 0,
+  toJSON: vi.fn(),
 }));

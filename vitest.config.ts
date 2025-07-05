@@ -6,10 +6,30 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: "./src/setupTests.ts",
+    setupFiles: "./src/test/setup.ts",
     coverage: {
       provider: "v8",
-      reporter: ["text", "html"], // adds console output + HTML report
+      reporter: ["text", "json", "html", "lcov"],
+      exclude: [
+        "node_modules/",
+        "src/test/setup.ts",
+        "src/setupTests.ts",
+        "**/*.config.ts",
+        "**/*.config.js",
+        "**/coverage/**"
+      ]
     },
+    // Base configuration - includes all tests by default
+    include: [
+      "src/**/*.{test,spec}.{js,mjs,cjs,ts,tsx,jsx}",
+      "src/test/**/*.{test,spec}.{js,mjs,cjs,ts,tsx,jsx}"
+    ],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/cypress/**",
+      "**/.{idea,git,cache,output,temp}/**",
+      "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*"
+    ]
   },
 });

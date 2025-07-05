@@ -6,7 +6,7 @@ import {
   DNI,
   DateValidator,
   InputValidator,
-} from '../../shared/validation';
+} from '../../../shared/validation';
 
 describe('CheckValue', () => {
   describe('isEmptyString', () => {

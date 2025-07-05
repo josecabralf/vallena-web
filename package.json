@@ -16,7 +16,13 @@
     "type-check": "tsc --noEmit",
     "test": "vitest --run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage --run"
+    "test:coverage": "vitest --coverage --run",
+    "test:unit": "vitest --run src/test/unit src/components src/hooks src/services src/shared src/config",
+    "test:unit:coverage": "vitest --coverage --run src/test/unit src/components src/hooks src/services src/shared src/config",
+    "test:unit:watch": "vitest src/test/unit src/components src/hooks src/services src/shared src/config",
+    "test:integration": "vitest --run src/test/integration",
+    "test:integration:coverage": "vitest --coverage --run src/test/integration",
+    "test:integration:watch": "vitest src/test/integration"
   },
   "dependencies": {
     "antd": "^5.26.3",
